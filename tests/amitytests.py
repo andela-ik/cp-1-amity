@@ -54,6 +54,8 @@ class AmityTest(unittest.TestCase):
                 "Error, Staff cannot be allocated a living space")
 
     def test_create_room(self):
+        "CREATE NEW ROOM"
+
         "CREATE NEW LSPACE"
         self.assertIsInstance(self.lspace1, Lspace )
         self.assertEqual(self.lspace1.name, "LSPACE1")
@@ -73,7 +75,7 @@ class AmityTest(unittest.TestCase):
         self.assertFalse(self.amity.search_room("notthere"))
 
     def test_search_room(self):
-        "TEST STAFF SEARCH"
+        "STAFF SEARCH TEST"
         self.assertIsInstance(self.amity.search_person("STAFF1"), Staff)
 
         "TEST FELLOW SEARCH"
@@ -84,6 +86,7 @@ class AmityTest(unittest.TestCase):
         self.assertFalse(self.amity.search_person("NOONE"))
 
     def test_reallocate_person(self):
+        "REALLOCATION TEST"
 
         "FELLOW LSPACE REALLOCATION"
         self.amity.reallocate_person("fellow1", "lspace3")
@@ -116,6 +119,7 @@ class AmityTest(unittest.TestCase):
                 None, msg = "You cannot be reallocated to a non existent room")
 
     def test_save_state(self):
+        "SAVE STATE TEST"
         "CAPTURE ALL INSTANCE VARIABLES"
         rooms = self.amity.rooms
         people = self.amity.people
@@ -136,6 +140,8 @@ class AmityTest(unittest.TestCase):
         self.assertEqual(old_state, new_state)
 
     def test_load_people(self):
+        "LOAD PEOPLE TEST"
+
         "ASSERT PERSON DOESN'T EXIST BEFORE LAOD"
         self.assertFalse(self.amity.search_person("OLUWAFEMI SULE"))
         self.assertFalse(self.amity.search_person("DOMINIC WALTERS"))
@@ -153,12 +159,15 @@ class AmityTest(unittest.TestCase):
 
 
     def test_print_allocations(self):
+        "PRINT ALLOCATIONS"
         pass
 
     def test_print_unallocated(self):
+        "PRINT UNALLOCATED"
         pass
 
     def test_print_room(self):
+        "PRINT ROOM"
         pass
 
 
