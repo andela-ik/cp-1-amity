@@ -101,7 +101,14 @@ class Amity():
         print(message)
         return room
 
-        
+
+    def deallocate_room(self, person, room):
+        """ Removes a person from a specific room"""
+        if room is not None:
+            room.occupants.remove(person.name.upper())
+            room.number_of_occupants -= 1
+
+
     #TODO: Implement Automated Waiting List
     def on_room_update(self):
         """ Track vacancies and auto allocate unallocated people"""
@@ -138,7 +145,27 @@ class Amity():
         name -- name of the peron to be moved
         room_name -- name of the destination room
         """
-        return
+        new_room = self.search_room(room_name)
+        if new_room == False:
+            print("Room Does Not Exist")
+        elif new_room.check_availability() == False:
+            print("The room is full")
+        else:
+            person = self.search_person(name)
+            if (person is not False):
+                if type(new_room) == Office:
+                    self.deallocate_room(person, person.office_allocated)
+                    person.office_allocated = new_room
+                    self.allocate_room(person, new_room)
+                elif type(new_room) == Lspace:
+                    if type(person) == Fellow:
+                        self.deallocate_room(person, person.lspace_allocated)
+                        person.lspace_allocated = new_room
+                        self.allocate_room(person, new_room)
+
+                    else:
+                        print("Staff Cannot be alocated an LSPACE")
+
 
     def save_state(self, db_name = "default"):
         """ Store all data in memory to database
@@ -151,14 +178,23 @@ class Amity():
 
     def search_person(self, person_name):
         """ Check if person exists in the system, return Person instance or False"""
-        return
-
-
+        for person in self.people:
+            if person.name == person_name.upper():
+                return person
+        return False
 
 
     def search_room(self, room_name):
         """ Check if room exists in the system, return Room instance or False"""
-        return
+        if room_name is None:
+            return None
+        elif room_name == "PENDING":
+            return "PENDING"
+        else:
+            for room in self.rooms:
+                if (room.name).upper() == room_name.upper():
+                        return room
+            return False
 
 
 
