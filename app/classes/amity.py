@@ -17,6 +17,7 @@ class Amity():
         role -- STAFF|FELLOW
         wants_accomodation -- Y|N Does the person require a living space(Fellows Only)
         """
+
         return
 
 
@@ -27,6 +28,30 @@ class Amity():
         name -- name of the room to be created
         room_type -- OFFICE|LSPACE
         """
+        for room in self.rooms:
+            if room.name == name.upper():
+                print(room.name + " ALREADY EXISTS")
+                return
+        room = None
+        if room_type.upper() == 'OFFICE':
+            room = Office(name)
+            self.rooms.append(room)
+            message = room.name+" office created successfully"
+            self.on_room_update()
+
+        elif room_type.upper() == 'LSPACE':
+            room = Lspace(name)
+            self.rooms.append(room)
+            message = room.name+" lspace created successfully"
+            self.on_room_update()
+
+        else:
+            message = "Invalid room type"
+        print(message)
+        return room
+
+    def on_room_update(self):
+        """ Track vacancies and auto allocate unallocated people"""
         return
 
     def print_allocations(self, file_name = False):
