@@ -7,13 +7,7 @@ class AmityTest(unittest.TestCase):
     """ AMITY TESTS"""
     def setUp(self):
         self.amity = Amity()
-        #Staff
-        self.staff1 = self.amity.add_person("staff1","Staff")
-        self.staff2 = self.amity.add_person("staff2","Staff", "N")
-        #Fellows
-        self.fellow1 = self.amity.add_person("fellow1","Fellow","N")
-        self.fellow2 = self.amity.add_person("fellow2","Fellow","Y")
-        self.fellow3 = self.amity.add_person("fellow1","Fellow","Y")
+
         #Living spaces
         self.lspace1 = self.amity.create_room("lspace1", "lspace")
         self.lspace2 = self.amity.create_room("lspace2", "lspace")
@@ -22,6 +16,14 @@ class AmityTest(unittest.TestCase):
         self.office1 = self.amity.create_room("office1", "office")
         self.office2 = self.amity.create_room("office2", "office")
         self.office3 = self.amity.create_room("office3", "office")
+        #Staff
+        self.staff1 = self.amity.add_person("staff1","Staff")
+        self.staff2 = self.amity.add_person("staff2","Staff", "N")
+        #Fellows
+        self.fellow1 = self.amity.add_person("fellow1","Fellow","N")
+        self.fellow2 = self.amity.add_person("fellow2","Fellow","Y")
+        self.fellow3 = self.amity.add_person("fellow1","Fellow","Y")
+
         #Load People File Prep
         output = "{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
                     "OLUWAFEMI SULE FELLOW Y",
