@@ -1,1 +1,3 @@
-# cp-1-amity
+# Amity
+
+A simple command line room allocation system
