@@ -22,7 +22,7 @@ class AmityTest(unittest.TestCase):
         #Fellows
         self.fellow1 = self.amity.add_person("fellow1","Fellow","N")
         self.fellow2 = self.amity.add_person("fellow2","Fellow","Y")
-        self.fellow3 = self.amity.add_person("fellow1","Fellow","Y")
+        self.fellow3 = self.amity.add_person("fellow3","Fellow","Y")
 
         #Load People File Prep
         output = "{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
@@ -54,6 +54,10 @@ class AmityTest(unittest.TestCase):
         self.assertEqual(self.amity.add_person("Ian KI", "Intern", "Y" ), "Invalid role")
         self.assertEqual(self.amity.add_person("Ian KS1","Staff","Y"), \
                 "Error, Staff cannot be allocated a living space")
+
+        "TEST ATTEMPT TO RECREATE PERSON"
+        self.assertEqual(self.amity.add_person("fellow1","Fellow","N"),\
+                None, msg = "Error, Person already exists")
 
     def test_create_room(self):
         "CREATE NEW ROOM"
