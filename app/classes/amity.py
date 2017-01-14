@@ -120,7 +120,23 @@ class Amity():
         Keyword arguments:
         file_name -- if specified, write to file
         """
-        return
+
+        if not file_name:
+            for room in self.rooms:
+                print("\n")
+                print(room.name)
+                print ("-------------------------------------")
+                print(', '.join(str(name) for name in room.occupants))
+                print("\n")
+        else:
+            file = open(file_name + " allocations.txt", 'w')
+            for room in self.rooms:
+                file.write(room.name + "\n")
+                file.write("-------------------------------------\n")
+                file.write(', '.join(str(name) for name in room.occupants))
+                file.write("\n\n")
+            file.closed
+
 
     def print_unallocated(self, file_name = False):
         """ Loop through *_unallocated lists and print out persons in each
@@ -128,7 +144,30 @@ class Amity():
         Keyword arguments:
         file_name -- if specified, write to file
         """
-        return
+
+        if not file_name:
+            print("\nOFFICE UNALLOCATED")
+            print ("-------------------------------------")
+            print(', '.join(str(person.name) for person in self.office_unallocated))
+            print("\n")
+
+            print("\nLIVING SPACE UNALLOCATED")
+            print ("-------------------------------------")
+            print(', '.join(str(person.name) for person in self.lspace_unallocated))
+            print("\n")
+
+        else:
+            file = open(file_name + " unallocated.txt", 'w')
+            file.write("\nOFFICE UNALLOCATED\n")
+            file.write ("-------------------------------------\n")
+            file.write(', '.join(str(person.name) for person in self.office_unallocated))
+            file.write("\n")
+
+            file.write("\nLIVING SPACE UNALLOCATED\n")
+            file.write ("-------------------------------------\n")
+            file.write(', '.join(str(person.name) for person in self.lspace_unallocated))
+            file.write("\n")
+
 
     def print_room(self, name):
         """ Print out specific room and persons allocated
@@ -136,7 +175,16 @@ class Amity():
         Keyword arguments:
         name -- name of the room to be printed
         """
-        return
+        room = self.search_room(name)
+        if room:
+            print("\n")
+            print(room.name)
+            print ("-------------------------------------")
+            print(', '.join(str(name) for name in room.occupants))
+            print("\n")
+
+        else:
+            print("\n" + name.upper() + " not found")
 
     def reallocate_person(self, name, room_name):
         """ Move person from current room to another
