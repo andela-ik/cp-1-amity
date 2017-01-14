@@ -1,59 +1,33 @@
 import unittest
 from app.classes.amity import Amity
-from app.classes.room import Room, Office, Lspace
-from app.classes.person import Person, Staff, Fellow
+from app.classes.room import Office, Lspace
+from app.classes.person import Staff, Fellow
 
 class AmityTest(unittest.TestCase):
     """ AMITY TESTS"""
     def setUp(self):
         self.amity = Amity()
 
-        #Living spaces
         self.lspace1 = self.amity.create_room("lspace1", "lspace")
-        self.lspace2 = self.amity.create_room("lspace2", "lspace")
-        self.lspace3 = self.amity.create_room("lspace3", "lspace")
-        #Offices
         self.office1 = self.amity.create_room("office1", "office")
-        self.office2 = self.amity.create_room("office2", "office")
-        self.office3 = self.amity.create_room("office3", "office")
-        #Staff
+
         self.staff1 = self.amity.add_person("staff1","Staff")
-        self.staff2 = self.amity.add_person("staff2","Staff", "N")
-        #Fellows
-        self.fellow1 = self.amity.add_person("fellow1","Fellow","N")
-        self.fellow2 = self.amity.add_person("fellow2","Fellow","Y")
-        self.fellow3 = self.amity.add_person("fellow3","Fellow","Y")
-
-        #Load People File Prep
-        output = "{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
-                    "OLUWAFEMI SULE FELLOW Y",
-                    "DOMINIC WALTERS STAFF",
-                    "SIMON PATTERSON FELLOW Y",
-                    "MARI LAWRENCE FELLOW Y",
-                    "LEIGH RILEY STAFF",
-                    "TANA LOPEZ FELLOW Y",
-                    "KELLY McGUIRE STAFF"
-                    )
-        f = open("test.txt", "w")
-        f.write(output)
-        f.close()
-
+        self.fellow1 = self.amity.add_person("fellow1","Fellow", "Y")
 
     def test_add_person(self):
         "ADD PERSON"
-        self.assertIsInstance(self.staff1, Staff)
         self.assertIsInstance(self.amity.add_person("Ian KS","Staff", "N"), Staff)
+        self.assertIsInstance(self.amity.add_person("Ian KS2","Staff", "Y"), Staff)
 
 
         "TESTS FOR NEW FELLOW"
-        self.assertIsInstance(self.amity.add_person("Ian K1","Fellow","N"), Fellow)
-        self.assertIsInstance(self.amity.add_person("Ian K2","Fellow","Y"), Fellow)
         self.assertIsInstance(self.amity.add_person("Ian K3","Fellow"), Fellow)
+        self.assertEqual(self.amity.add_person("Ian K1","Fellow","N").lspace_allocated, None)
+        self.assertIsInstance(self.amity.add_person("Ian K2","Fellow","Y").lspace_allocated, Lspace)
+
 
         "TEST INVALID INPUT"
         self.assertEqual(self.amity.add_person("Ian KI", "Intern", "Y" ), "Invalid role")
-        self.assertEqual(self.amity.add_person("Ian KS1","Staff","Y"), \
-                "Error, Staff cannot be allocated a living space")
 
         "TEST ATTEMPT TO RECREATE PERSON"
         self.assertEqual(self.amity.add_person("fellow1","Fellow","N"),\
@@ -61,6 +35,7 @@ class AmityTest(unittest.TestCase):
 
     def test_create_room(self):
         "CREATE NEW ROOM"
+
 
         "CREATE NEW LSPACE"
         self.assertIsInstance(self.lspace1, Lspace )
@@ -80,7 +55,7 @@ class AmityTest(unittest.TestCase):
         "TEST NON EXISTENT ROOM"
         self.assertFalse(self.amity.search_room("notthere"))
 
-    def test_search_room(self):
+    def test_search_person(self):
         "STAFF SEARCH TEST"
         self.assertIsInstance(self.amity.search_person("STAFF1"), Staff)
 
@@ -93,33 +68,35 @@ class AmityTest(unittest.TestCase):
 
     def test_reallocate_person(self):
         "REALLOCATION TEST"
+        lspace2 = self.amity.create_room("lspace2", "lspace")
+        office2 = self.amity.create_room("office2", "office")
+
 
         "FELLOW LSPACE REALLOCATION"
-        self.amity.reallocate_person("fellow1", "lspace3")
-        self.assertEqual(self.fellow1.lspace_allocated.name, "LSPACE3")
-        self.assertTrue("FELLOW1" in self.lspace3.occupants)
+        self.assertTrue("FELLOW1" in self.lspace1.occupants)
+        self.assertEqual(self.fellow1.lspace_allocated.name, "LSPACE1")
 
         self.amity.reallocate_person("fellow1", "lspace2")
+
+        self.assertTrue("FELLOW1" in lspace2.occupants)
         self.assertEqual(self.fellow1.lspace_allocated.name, "LSPACE2")
-        self.assertTrue("FELLOW1" in self.lspace2.occupants)
-        self.assertFalse("FELLOW1" in self.lspace3.occupants)
+
 
         "TEST STAFF OFFICE REALLOCATION"
-        self.amity.reallocate_person("staff1", "office1")
-        self.assertEqual(self.staff1.office_allocated.name, "OFFICE1")
         self.assertTrue("STAFF1" in self.office1.occupants)
+        self.assertEqual(self.staff1.office_allocated.name, "OFFICE1")
 
-        self.amity.reallocate_person("staff1", "office2")
+        self.amity.reallocate_person("staff1", "OFFICE2")
+
+        self.assertTrue("STAFF1" in office2.occupants)
         self.assertEqual(self.staff1.office_allocated.name, "OFFICE2")
-        self.assertTrue("STAFF1" in self.office2.occupants)
-        self.assertFalse("STAFF1" in self.office1.occupants)
 
         "TEST STAFF LSPACE REALLOCATION"
         self.assertEqual(self.amity.reallocate_person("staff1", "lspace1"),\
                 None, msg="Staff Cannot be allocated a living space")
 
         "TEST NONE EXISTENT ROOM REALLOCATION"
-        self.assertEqual(self.amity.reallocate_person("staff1", ""),\
+        self.assertEqual(self.amity.reallocate_person("staff1", "OFFICE7"),\
                 None, msg = "You cannot be reallocated to a non existent room")
         self.assertEqual(self.amity.reallocate_person("fellow1", "lspace7"), \
                 None, msg = "You cannot be reallocated to a non existent room")
@@ -147,6 +124,19 @@ class AmityTest(unittest.TestCase):
 
     def test_load_people(self):
         "LOAD PEOPLE TEST"
+        #Load People File Prep
+        output = "{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+                    "OLUWAFEMI SULE FELLOW Y",
+                    "DOMINIC WALTERS STAFF",
+                    "SIMON PATTERSON FELLOW Y",
+                    "MARI LAWRENCE FELLOW Y",
+                    "LEIGH RILEY STAFF",
+                    "TANA LOPEZ FELLOW Y",
+                    "KELLY McGUIRE STAFF"
+                    )
+        f = open("test.txt", "w")
+        f.write(output)
+        f.close()
 
         "ASSERT PERSON DOESN'T EXIST BEFORE LAOD"
         self.assertFalse(self.amity.search_person("OLUWAFEMI SULE"))
@@ -154,7 +144,7 @@ class AmityTest(unittest.TestCase):
         self.assertFalse(self.amity.search_person("SIMON PATTERSON"))
 
         "LOAD PEOPLE FROM TEXT FILE"
-        self.amity.load_people("test.txt")
+        self.amity.load_people("test")
 
         "ASSERT PERSON EXISTS AFTER LOAD"
         self.assertTrue(self.amity.search_person("OLUWAFEMI SULE"))
