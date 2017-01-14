@@ -25,7 +25,6 @@ class Amity():
         if role.upper() == 'STAFF':
             if wants_accomodation == 'Y':
                 print("Error, Staff cannot be allocated a living space")
-                return "Error, Staff cannot be allocated a living space"
             office = self.select_random_room(Office)
             person = Staff(name, office )
             self.people.append(person)
@@ -59,6 +58,7 @@ class Amity():
             print(person.name + " added successfully")
 
         else:
+            print("Invalid Role")
             person = "Invalid role"
 
         return person
@@ -280,4 +280,22 @@ class Amity():
         Keyword arguments:
         file_name -- file containing desired data
         """
+
+        file_name = file_name + ".txt"
+        f = open(file_name, 'r')
+        index = None
+        for line in f:
+            line = line.replace('\n', '')
+            data = line.split(" ")
+            for item in data:
+                if item ==  "STAFF" or item == "FELLOW":
+                    index = data.index(item)
+                    name = " ".join(data[:index])
+                    role = data[index]
+                    wants_accomodation = data[-1]
+                    self.add_person(name, role, wants_accomodation)
+                    break
+            if index is None:
+                print("INCORRECT INPUT FORMAT")
+
         return
