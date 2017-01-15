@@ -1,6 +1,7 @@
 import random
 from .room import Office, Lspace
 from .person import Staff, Fellow
+from app.models.database import Database
 
 class Amity():
     def __init__(self):
@@ -8,6 +9,7 @@ class Amity():
         self.people = []
         self.lspace_unallocated = []
         self.office_unallocated = []
+        self.db = None
 
     def add_person(self, name, role, wants_accomodation = 'N'):
         """ Create a Fellow or Staff and return Person instance
@@ -221,7 +223,48 @@ class Amity():
         Keyword arguments:
         db_name -- if specified, save to specified database, else use default
         """
-        return
+        print("PLEASE WAIT")
+        self.db = Database(db_name)
+        self.save_rooms()
+        self.save_people()
+        print("\nSESSION SAVED")
+
+
+    def save_people(self):
+        for person in self.people:
+            lspace = None
+            office = None
+            if type(person) == Staff:
+                role = "STAFF"
+            else:
+                role = "FELLOW"
+                if person.lspace_allocated is not None:
+                    lspace = person.lspace_allocated.name
+                elif person in self.lspace_unallocated:
+                    lspace = "PENDING"
+                else:
+                    pass
+            if person.office_allocated  is not None:
+                office = person.office_allocated.name
+            else:
+                office = "PENDING"
+            self.db.save_person(person.name, role,office, lspace)
+            print(".", end = "")
+
+    def save_rooms(self):
+        for room in self.rooms:
+            if type(room) == Office:
+                room_type = "OFFICE"
+            else:
+                room_type = "LSPACE"
+            self.db.save_room(room.name,
+                            room.max_occupants,
+                            room.number_of_occupants,
+                            room_type,
+                            ', '.join(str(name) for name in room.occupants)
+                            )
+            print(".", end = "")
+
 
 
     def search_person(self, person_name):
@@ -270,7 +313,47 @@ class Amity():
         Keyword arguments:
         db_name -- if specified, load from specified database, else use default
         """
-        return
+        self.__init__()
+        self.db = Database(db_name)
+        self.load_rooms()
+        self.load_persons()
+
+    def load_persons(self):
+        for person in self.db.get_people():
+            office = self.search_room(person.office)
+            if person.role == "STAFF":
+                staff = Staff(person.name, office)
+                if office == "PENDING":
+                    fellow.lspace_allocated == None
+                    self.office_unallocated.append(staff)
+                self.people.append(staff)
+            elif person.role == "FELLOW":
+                lspace = self.search_room(person.lspace)
+                fellow = Fellow(person.name, office, lspace)
+                if lspace == "PENDING":
+                    fellow.lspace_allocated == None
+                    self.lspace_unallocated.append(fellow)
+                if office == "PENDING":
+                    fellow.office = None
+                    self.office_unallocated.append(fellow)
+                self.people.append(fellow)
+            else:
+                print("Error: Check Database")
+
+    def load_rooms(self):
+        for room in self.db.get_rooms():
+            if room.room_type == "OFFICE":
+                office = Office(room.name)
+                office.occupants = room.occupants.split(',')
+                office.number_of_occupants = int(room.no_of_occupants)
+                self.rooms.append(office)
+            elif room.room_type == "LSPACE":
+                lspace = Lspace(room.name)
+                lspace.occupants = room.occupants.split(',')
+                lspace.number_of_occupants = int(room.no_of_occupants)
+                self.rooms.append(lspace)
+            else:
+                print("Error: Check Database")
 
 
 
