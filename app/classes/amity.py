@@ -2,6 +2,8 @@ import random
 from .room import Office, Lspace
 from .person import Staff, Fellow
 from app.models.database import Database
+import os.path
+
 
 class Amity():
     def __init__(self):
@@ -90,17 +92,18 @@ class Amity():
             room = Office(name)
             self.rooms.append(room)
             message = room.name+" office created successfully"
-            self.on_room_update()
 
         elif room_type.upper() == 'LSPACE':
             room = Lspace(name)
             self.rooms.append(room)
             message = room.name+" lspace created successfully"
-            self.on_room_update()
+
 
         else:
             message = "Invalid room type"
         print(message)
+        if room is not None:
+            self.on_room_update(type(room))
         return room
 
 
@@ -110,11 +113,41 @@ class Amity():
             room.occupants.remove(person.name.upper())
             room.number_of_occupants -= 1
 
-
-    #TODO: Implement Automated Waiting List
-    def on_room_update(self):
+    def on_room_update(self, room):
         """ Track vacancies and auto allocate unallocated people"""
-        return
+        allocated = []
+        if room == Lspace:
+            for i in range(0, len(self.lspace_unallocated)):
+                room = self.select_random_room(Lspace)
+                person = self.lspace_unallocated[i]
+                if room is not None:
+                    self.allocate_room(person, room)
+                    person.lspace_allocated = room
+                    print("A VACANT LSPACE WAS FOUND AND "+
+                                person.name+" ALLOCATED TO "+ room.name)
+                    allocated.append(person)
+                else:
+                    break
+            for person in allocated:
+                if person in self.lspace_unallocated:
+                    self.lspace_unallocated.remove(person)
+
+        elif room == Office:
+            for i in range(0, len(self.office_unallocated)):
+                room = self.select_random_room(Office)
+                person = self.office_unallocated[i]
+                if room is not None:
+                    self.allocate_room(person, room)
+                    person.office_allocated = room
+                    print("A VACANCT OFFICE WAS FOUND AND "+
+                                person.name+" ALLOCATED TO "+ room.name)
+                    allocated.append(person)
+                else:
+                    break
+            for person in allocated:
+                if person in self.office_unallocated:
+                    self.office_unallocated.remove(person)
+
 
     def print_allocations(self, file_name = False):
         """ Loop through rooms and print out persons allocated to each
@@ -160,7 +193,7 @@ class Amity():
 
         else:
             file = open(file_name + " unallocated.txt", 'w')
-            file.write("\nOFFICE UNALLOCATED\n")
+            file.write("OFFICE UNALLOCATED\n")
             file.write ("-------------------------------------\n")
             file.write(', '.join(str(person.name) for person in self.office_unallocated))
             file.write("\n")
@@ -301,8 +334,11 @@ class Amity():
         if number_available > 0:
             selected_room = random.sample(available_rooms, 1)[0]
         else:
-            #TODO:Implement waiting list
-            print("There are no vacancies")
+            if room_type == Office:
+                room = "Offices"
+            elif room_type == Lspace:
+                room = "Lspaces"
+            print("There are no vacant "+ room + " at the moment")
         return selected_room
 
 
@@ -314,9 +350,13 @@ class Amity():
         db_name -- if specified, load from specified database, else use default
         """
         self.__init__()
-        self.db = Database(db_name)
-        self.load_rooms()
-        self.load_persons()
+        if (os.path.isfile(db_name+".db")):
+            self.db = Database(db_name)
+            self.load_rooms()
+            self.load_persons()
+            print ("LOADED SUCCESSFULLY")
+        else:
+            print("DATABASE NOT FOUND")
 
     def load_persons(self):
         for person in self.db.get_people():
@@ -363,22 +403,25 @@ class Amity():
         Keyword arguments:
         file_name -- file containing desired data
         """
-
         file_name = file_name + ".txt"
-        f = open(file_name, 'r')
-        index = None
-        for line in f:
-            line = line.replace('\n', '')
-            data = line.split(" ")
-            for item in data:
-                if item ==  "STAFF" or item == "FELLOW":
-                    index = data.index(item)
-                    name = " ".join(data[:index])
-                    role = data[index]
-                    wants_accomodation = data[-1]
-                    self.add_person(name, role, wants_accomodation)
-                    break
-            if index is None:
-                print("INCORRECT INPUT FORMAT")
+        print(os.path)
+        if (os.path.isfile(file_name)):
+            f = open(file_name, 'r')
+            index = None
+            for line in f:
+                line = line.replace('\n', '')
+                data = line.split(" ")
+                for item in data:
+                    if item ==  "STAFF" or item == "FELLOW":
+                        index = data.index(item)
+                        name = " ".join(data[:index])
+                        role = data[index]
+                        wants_accomodation = data[-1]
+                        self.add_person(name, role, wants_accomodation)
+                        break
+                if index is None:
+                    print("INCORRECT INPUT FORMAT")
+        else:
+            print("FILE DOES NOT EXIST")
 
         return
