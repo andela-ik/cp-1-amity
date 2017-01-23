@@ -92,6 +92,6 @@ ENV/
 #my bot files
 noui.py
 *.txt
-test.db
+*.db
 
 .DS_Store
