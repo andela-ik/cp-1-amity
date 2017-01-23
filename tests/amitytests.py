@@ -48,6 +48,9 @@ class AmityTest(unittest.TestCase):
         """ INVALID INPUT"""
         self.assertEqual(self.amity.create_room("test_invalid", "live-in"),  None)
 
+        """ ROOM ANME ALREADY EXISTS"""
+        self.assertEqual(self.amity.create_room("office1", "office"),  None)
+
     def test_search_room(self):
         """ TEST ROOM SEARCH"""
         self.assertIsInstance(self.amity.search_room("lspace1"), Lspace)
@@ -65,6 +68,27 @@ class AmityTest(unittest.TestCase):
 
         """ TEST NON EXISTENT PERSON"""
         self.assertFalse(self.amity.search_person("NOONE"))
+
+    def test_on_room_update(self):
+        """ TEST WAITING LIST AUTO ALLOCATIONS"""
+        self.amity.add_person("Ian 1", "FELLOW", "Y")
+        self.amity.add_person("Ian 2", "FELLOW", "Y")
+        self.amity.add_person("Ian 3", "FELLOW", "Y")
+        self.amity.add_person("Ian 4", "FELLOW", "Y")
+        self.amity.add_person("Ian 5", "FELLOW", "Y")
+        self.amity.add_person("Ian 6", "FELLOW", "Y")
+
+        """" ASSERT WAITING LIST IS NOT EMPTY"""
+        self.assertTrue(len(self.amity.lspace_unallocated) > 0)
+        self.assertTrue(len(self.amity.office_unallocated) > 0)
+
+        """ CREATE NEW ROOMS(VACANCIES)"""
+        self.amity.create_room("lspace2", "lspace")
+        self.amity.create_room("office2", "office")
+
+        """ ASSERT WAITING LIST IS  EMPTY"""
+        self.assertTrue(len(self.amity.lspace_unallocated) == 0)
+        self.assertTrue(len(self.amity.office_unallocated) == 0)
 
     def test_reallocate_person(self):
         """ REALLOCATION TEST"""
