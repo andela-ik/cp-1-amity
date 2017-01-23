@@ -77,7 +77,7 @@ class Amity():
 
 
     def create_room(self, name, room_type):
-        """ Create and Office or Lspace and return Room instance
+        """ Create an Office or Lspace and return Room instance
 
         Keyword arguments:
         name -- name of the room to be created
@@ -110,6 +110,7 @@ class Amity():
     def deallocate_room(self, person, room):
         """ Removes a person from a specific room"""
         if room is not None:
+            print(person.name in room.occupants)
             room.occupants.remove(person.name.upper())
             room.number_of_occupants -= 1
 
@@ -164,13 +165,15 @@ class Amity():
                 print(', '.join(str(name) for name in room.occupants))
                 print("\n")
         else:
-            file = open(file_name + " allocations.txt", 'w')
+            file_name = file_name + " allocations.txt"
+            file = open(file_name, 'w')
             for room in self.rooms:
                 file.write(room.name + "\n")
                 file.write("-------------------------------------\n")
                 file.write(', '.join(str(name) for name in room.occupants))
                 file.write("\n\n")
             file.closed
+            print("Data has been saved to {0}".format(file_name))
 
 
     def print_unallocated(self, file_name = False):
@@ -192,7 +195,8 @@ class Amity():
             print("\n")
 
         else:
-            file = open(file_name + " unallocated.txt", 'w')
+            file_name = file_name + " unallocated.txt"
+            file = open(file_name, 'w')
             file.write("OFFICE UNALLOCATED\n")
             file.write ("-------------------------------------\n")
             file.write(', '.join(str(person.name) for person in self.office_unallocated))
@@ -202,6 +206,7 @@ class Amity():
             file.write ("-------------------------------------\n")
             file.write(', '.join(str(person.name) for person in self.lspace_unallocated))
             file.write("\n")
+            print("Data has been saved to {0}".format(file_name))
 
 
     def print_room(self, name):
@@ -245,7 +250,6 @@ class Amity():
                         self.deallocate_room(person, person.lspace_allocated)
                         person.lspace_allocated = new_room
                         self.allocate_room(person, new_room)
-
                     else:
                         print("Staff Cannot be alocated an LSPACE")
 
@@ -404,7 +408,6 @@ class Amity():
         file_name -- file containing desired data
         """
         file_name = file_name + ".txt"
-        print(os.path)
         if (os.path.isfile(file_name)):
             f = open(file_name, 'r')
             index = None
