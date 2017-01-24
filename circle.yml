@@ -2,8 +2,6 @@ machine:
   python:
     version: 3.6.0
 
-dependencies:
-
 test:
   override:
     - nosetests tests/amitytests.py
