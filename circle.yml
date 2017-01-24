@@ -1,0 +1,10 @@
+machine:
+  python:
+    version: pypy-3.6.0
+
+dependencies:
+  pre:
+    - pip install -r requirements.txt
+test:
+  override:
+    - nosetests tests/amitytests.py
