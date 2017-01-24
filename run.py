@@ -2,6 +2,13 @@
 Usage:
   create_room <room_name>
   add_person <person_name> <role> [wants_accommodation]
+  print_allocations [--o=filename]
+  print_unallocated [--o=filename]
+  load_people <filename>
+  reallocate_person <first_name> <last_name> <new_room_name>
+  print_room <room_name>
+  save_state [--db=sqlite_database]
+  load_state <sqlite_database>
 
 Options:
   -h --help     Show this screen.
@@ -47,7 +54,7 @@ def docopt_cmd(func):
     return fn
 
 class AmityInterface(cmd.Cmd):
-    intro = "AMITY DEMO INTRO"
+    intro = "AMITY ROOM MANAGER"
     prompt = 'amity> '
 
 

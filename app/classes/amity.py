@@ -110,7 +110,6 @@ class Amity():
     def deallocate_room(self, person, room):
         """ Removes a person from a specific room"""
         if room is not None:
-            print(person.name in room.occupants)
             room.occupants.remove(person.name.upper())
             room.number_of_occupants -= 1
 
@@ -285,7 +284,7 @@ class Amity():
                 office = person.office_allocated.name
             else:
                 office = "PENDING"
-            self.db.save_person(person.name, role,office, lspace)
+            self.db.save_person(person.name, role, office, lspace)
             print(".", end = "")
 
     def save_rooms(self):
@@ -298,7 +297,7 @@ class Amity():
                             room.max_occupants,
                             room.number_of_occupants,
                             room_type,
-                            ', '.join(str(name) for name in room.occupants)
+                            ','.join(str(name) for name in room.occupants)
                             )
             print(".", end = "")
 
@@ -368,14 +367,14 @@ class Amity():
             if person.role == "STAFF":
                 staff = Staff(person.name, office)
                 if office == "PENDING":
-                    fellow.lspace_allocated == None
+                    staff.office_allocated = None
                     self.office_unallocated.append(staff)
                 self.people.append(staff)
             elif person.role == "FELLOW":
                 lspace = self.search_room(person.lspace)
                 fellow = Fellow(person.name, office, lspace)
                 if lspace == "PENDING":
-                    fellow.lspace_allocated == None
+                    fellow.lspace_allocated = None
                     self.lspace_unallocated.append(fellow)
                 if office == "PENDING":
                     fellow.office = None
