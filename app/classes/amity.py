@@ -1,5 +1,5 @@
 import random
-from .room import Office, Lspace
+from .room import Office, LivingSpace
 from .person import Staff, Fellow
 from app.models.database import Database
 import os.path
@@ -9,7 +9,7 @@ class Amity():
     def __init__(self):
         self.rooms = []
         self.people = []
-        self.lspace_unallocated = []
+        self.living_space_unallocated = []
         self.office_unallocated = []
         self.db = None
 
@@ -19,7 +19,7 @@ class Amity():
         Keyword arguments:
         name -- Name of person to be created
         role -- STAFF|FELLOW
-        wants_accomodation -- Y|N Does the person require a living space(Fellows Only)
+        wants_accomodation -- Y|N Does the person require a living space(Fellow)
         """
 
         for person in self.people:
@@ -32,7 +32,7 @@ class Amity():
             office = self.select_random_room(Office)
             person = Staff(name, office )
             self.people.append(person)
-            if office is not None:
+            if office:
                 self.allocate_room(person, office)
             else:
                 self.office_unallocated.append(person)
@@ -40,24 +40,22 @@ class Amity():
             print(person.name + " added successfully")
 
         elif role.upper() == 'FELLOW':
-            lspace = None
+            living_space = None
             office = None
             if wants_accomodation == 'Y':
-                lspace = self.select_random_room(Lspace)
+                living_space = self.select_random_room(LivingSpace)
             office = self.select_random_room(Office)
-            person = Fellow(name, office, lspace)
+            person = Fellow(name, office, living_space)
             self.people.append(person)
-            if office is not None:
+            if office:
                 self.allocate_room(person, office)
             else:
                 self.office_unallocated.append(person)
 
-            if lspace is not None:
-                self.allocate_room(person, lspace)
-            elif wants_accomodation == 'Y' and lspace is None:
-                self.lspace_unallocated.append(person)
-            else:
-                pass
+            if living_space:
+                self.allocate_room(person, living_space)
+            elif wants_accomodation == 'Y' and not living_space:
+                self.living_space_unallocated.append(person)
 
             print(person.name + " added successfully")
 
@@ -70,19 +68,23 @@ class Amity():
 
     def allocate_room(self, person, room):
         """ Allocates a person to a specific room"""
-        if room is not None and room.check_availability():
+        if room and room.check_availability():
             room.occupants.append(person.name.upper())
             room.number_of_occupants += 1
 
 
 
     def create_room(self, name, room_type):
-        """ Create an Office or Lspace and return Room instance
+        """ Create an Office or LivingSpace and return Room instance
 
         Keyword arguments:
         name -- name of the room to be created
         room_type -- OFFICE|LSPACE
         """
+        if room_type.upper() not in ['LSPACE','OFFICE']:
+                print("Invalid room type")
+                return
+                
         for room in self.rooms:
             if room.name == name.upper():
                 print(room.name + " ALREADY EXISTS")
@@ -94,49 +96,47 @@ class Amity():
             message = room.name+" office created successfully"
 
         elif room_type.upper() == 'LSPACE':
-            room = Lspace(name)
+            room = LivingSpace(name)
             self.rooms.append(room)
-            message = room.name+" lspace created successfully"
+            message = room.name+" living space created successfully"
 
 
-        else:
-            message = "Invalid room type"
         print(message)
-        if room is not None:
+        if room:
             self.on_room_update(type(room))
         return room
 
 
     def deallocate_room(self, person, room):
         """ Removes a person from a specific room"""
-        if room is not None:
+        if room:
             room.occupants.remove(person.name.upper())
             room.number_of_occupants -= 1
 
     def on_room_update(self, room):
         """ Track vacancies and auto allocate unallocated people"""
         allocated = []
-        if room == Lspace:
-            for i in range(0, len(self.lspace_unallocated)):
-                room = self.select_random_room(Lspace)
-                person = self.lspace_unallocated[i]
-                if room is not None:
+        if room == LivingSpace:
+            for i in range(0, len(self.living_space_unallocated)):
+                room = self.select_random_room(LivingSpace)
+                person = self.living_space_unallocated[i]
+                if room:
                     self.allocate_room(person, room)
-                    person.lspace_allocated = room
+                    person.living_space_allocated = room
                     print("A VACANT LSPACE WAS FOUND AND "+
                                 person.name+" ALLOCATED TO "+ room.name)
                     allocated.append(person)
                 else:
                     break
             for person in allocated:
-                if person in self.lspace_unallocated:
-                    self.lspace_unallocated.remove(person)
+                if person in self.living_space_unallocated:
+                    self.living_space_unallocated.remove(person)
 
         elif room == Office:
             for i in range(0, len(self.office_unallocated)):
                 room = self.select_random_room(Office)
                 person = self.office_unallocated[i]
-                if room is not None:
+                if room:
                     self.allocate_room(person, room)
                     person.office_allocated = room
                     print("A VACANCT OFFICE WAS FOUND AND "+
@@ -190,7 +190,7 @@ class Amity():
 
             print("\nLIVING SPACE UNALLOCATED")
             print ("-------------------------------------")
-            print(', '.join(str(person.name) for person in self.lspace_unallocated))
+            print(', '.join(str(person.name) for person in self.living_space_unallocated))
             print("\n")
 
         else:
@@ -203,7 +203,7 @@ class Amity():
 
             file.write("\nLIVING SPACE UNALLOCATED\n")
             file.write ("-------------------------------------\n")
-            file.write(', '.join(str(person.name) for person in self.lspace_unallocated))
+            file.write(', '.join(str(person.name) for person in self.living_space_unallocated))
             file.write("\n")
             print("Data has been saved to {0}".format(file_name))
 
@@ -233,21 +233,21 @@ class Amity():
         room_name -- name of the destination room
         """
         new_room = self.search_room(room_name)
-        if new_room == False:
+        if not new_room:
             print("Room Does Not Exist")
         elif new_room.check_availability() == False:
             print("The room is full")
         else:
             person = self.search_person(name)
-            if (person is not False):
+            if (person):
                 if type(new_room) == Office:
                     self.deallocate_room(person, person.office_allocated)
                     person.office_allocated = new_room
                     self.allocate_room(person, new_room)
-                elif type(new_room) == Lspace:
+                elif type(new_room) == LivingSpace:
                     if type(person) == Fellow:
-                        self.deallocate_room(person, person.lspace_allocated)
-                        person.lspace_allocated = new_room
+                        self.deallocate_room(person, person.living_space_allocated)
+                        person.living_space_allocated = new_room
                         self.allocate_room(person, new_room)
                     else:
                         print("Staff Cannot be alocated an LSPACE")
@@ -268,24 +268,23 @@ class Amity():
 
     def save_people(self):
         for person in self.people:
-            lspace = None
+            living_space = None
             office = None
             if type(person) == Staff:
                 role = "STAFF"
             else:
                 role = "FELLOW"
-                if person.lspace_allocated is not None:
-                    lspace = person.lspace_allocated.name
-                elif person in self.lspace_unallocated:
-                    lspace = "PENDING"
-                else:
-                    pass
-            if person.office_allocated  is not None:
+                if person.living_space_allocated:
+                    living_space = person.living_space_allocated.name
+                elif person in self.living_space_unallocated:
+                    living_space = "PENDING"
+            if person.office_allocated:
                 office = person.office_allocated.name
             else:
                 office = "PENDING"
-            self.db.save_person(person.name, role, office, lspace)
+            self.db.save_person(person.name, role, office, living_space)
             print(".", end = "")
+
 
     def save_rooms(self):
         for room in self.rooms:
@@ -302,7 +301,6 @@ class Amity():
             print(".", end = "")
 
 
-
     def search_person(self, person_name):
         """ Check if person exists in the system, return Person instance or False"""
         for person in self.people:
@@ -313,7 +311,7 @@ class Amity():
 
     def search_room(self, room_name):
         """ Check if room exists in the system, return Room instance or False"""
-        if room_name is None:
+        if not room_name:
             return None
         elif room_name == "PENDING":
             return "PENDING"
@@ -339,7 +337,7 @@ class Amity():
         else:
             if room_type == Office:
                 room = "Offices"
-            elif room_type == Lspace:
+            elif room_type == LivingSpace:
                 room = "Lspaces"
             print("There are no vacant "+ room + " at the moment")
         return selected_room
@@ -371,11 +369,11 @@ class Amity():
                     self.office_unallocated.append(staff)
                 self.people.append(staff)
             elif person.role == "FELLOW":
-                lspace = self.search_room(person.lspace)
-                fellow = Fellow(person.name, office, lspace)
-                if lspace == "PENDING":
-                    fellow.lspace_allocated = None
-                    self.lspace_unallocated.append(fellow)
+                living_space = self.search_room(person.living_space)
+                fellow = Fellow(person.name, office, living_space)
+                if living_space == "PENDING":
+                    fellow.living_space_allocated = None
+                    self.living_space_unallocated.append(fellow)
                 if office == "PENDING":
                     fellow.office = None
                     self.office_unallocated.append(fellow)
@@ -391,10 +389,10 @@ class Amity():
                 office.number_of_occupants = int(room.no_of_occupants)
                 self.rooms.append(office)
             elif room.room_type == "LSPACE":
-                lspace = Lspace(room.name)
-                lspace.occupants = room.occupants.split(',')
-                lspace.number_of_occupants = int(room.no_of_occupants)
-                self.rooms.append(lspace)
+                living_space = LivingSpace(room.name)
+                living_space.occupants = room.occupants.split(',')
+                living_space.number_of_occupants = int(room.no_of_occupants)
+                self.rooms.append(living_space)
             else:
                 print("Error: Check Database")
 
@@ -407,7 +405,10 @@ class Amity():
         file_name -- file containing desired data
         """
         file_name = file_name + ".txt"
-        if (os.path.isfile(file_name)):
+        if (not os.path.isfile(file_name)):
+            print("FILE DOES NOT EXIST")
+
+        else:
             f = open(file_name, 'r')
             index = None
             for line in f:
@@ -423,7 +424,3 @@ class Amity():
                         break
                 if index is None:
                     print("INCORRECT INPUT FORMAT")
-        else:
-            print("FILE DOES NOT EXIST")
-
-        return
