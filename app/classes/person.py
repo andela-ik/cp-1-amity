@@ -8,6 +8,6 @@ class Staff(Person):
         super().__init__(name, office)
 
 class Fellow(Person):
-    def __init__(self, name, office, lspace):
+    def __init__(self, name, office, living_space):
         super().__init__(name, office)
-        self.lspace_allocated = lspace
+        self.living_space_allocated = living_space
