@@ -7,10 +7,7 @@ class Room():
 
     def check_availability(self):
         """ Checks whether there are vacancies in the room"""
-        if self.number_of_occupants == self.max_occupants:
-            return False
-        else:
-            return True
+        return self.number_of_occupants != self.max_occupants
 
 
 class Office(Room):
@@ -18,6 +15,6 @@ class Office(Room):
         super().__init__(name, 6)
 
 
-class Lspace(Room):
+class LivingSpace(Room):
     def __init__(self, name):
         super().__init__(name, 4)
