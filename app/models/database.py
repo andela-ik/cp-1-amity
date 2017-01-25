@@ -24,7 +24,7 @@ class Database():
             name = Column(String(100))
             role = Column(String(10))
             office = Column(String(20))
-            lspace = Column(String(20))
+            living_space = Column(String(20))
             date_created = Column(DateTime(timezone=True), server_default = func.now())
             last_updated = Column(DateTime(timezone=True), onupdate = func.now())
 
@@ -56,17 +56,15 @@ class Database():
     def check_exists(self, name, table):
         person = self.session.query(table).\
                     filter(table.name == name).all()
-        if len(person) > 0:
-            return True
-        return False
+        return len(person) > 0
 
-    def save_person(self, name, role, office = None, lspace = None):
+    def save_person(self, name, role, office = None, living_space = None):
         if self.check_exists(name, self.Person):
             mod = update(self.Person).where(self.Person.name == name).values(
                                             name = name,
                                             role = role,
                                             office = office,
-                                            lspace = lspace
+                                            living_space = living_space
                                         )
             self.session.execute(mod)
             self.session.commit()
@@ -75,7 +73,7 @@ class Database():
                                 name = name ,
                                 role = role,
                                 office = office,
-                                lspace = lspace
+                                living_space = living_space
                                 )
             self.session.add(new_person)
             self.session.commit()
