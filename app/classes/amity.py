@@ -145,7 +145,7 @@ class Amity():
             for person in allocated:
                 if person in self.office_unallocated:
                     self.office_unallocated.remove(person)
-                    
+
 
     def print_allocations(self, file_name = False):
         """ Loop through rooms and print out persons allocated to each
@@ -153,22 +153,17 @@ class Amity():
         Keyword arguments:
         file_name -- if specified, write to file
         """
-
+        for room in self.rooms:
+            data +=room.name + "\n"
+            data +="-------------------------------------\n"
+            data +=', '.join(str(name) for name in room.occupants)
+            data +="\n\n"
         if not file_name:
-            for room in self.rooms:
-                print("\n")
-                print(room.name)
-                print ("-------------------------------------")
-                print(', '.join(str(name) for name in room.occupants))
-                print("\n")
+            print(data)
         else:
             file_name = file_name + " allocations.txt"
             file = open(file_name, 'w')
-            for room in self.rooms:
-                file.write(room.name + "\n")
-                file.write("-------------------------------------\n")
-                file.write(', '.join(str(name) for name in room.occupants))
-                file.write("\n\n")
+            file.write(data)
             file.closed
             print("Data has been saved to {0}".format(file_name))
 
@@ -179,30 +174,22 @@ class Amity():
         Keyword arguments:
         file_name -- if specified, write to file
         """
+        data = "OFFICE UNALLOCATED\n"
+        data += "-------------------------------------\n"
+        data += (', '.join(str(person.name) for person in self.office_unallocated))
+        data += "\n"
+        data += "\nLIVING SPACE UNALLOCATED\n"
+        data += "-------------------------------------\n"
+        data += ', '.join(str(person.name) for person in self.living_space_unallocated)
+        data += "\n"
 
         if not file_name:
-            print("\nOFFICE UNALLOCATED")
-            print ("-------------------------------------")
-            print(', '.join(str(person.name) for person in self.office_unallocated))
-            print("\n")
-
-            print("\nLIVING SPACE UNALLOCATED")
-            print ("-------------------------------------")
-            print(', '.join(str(person.name) for person in self.living_space_unallocated))
-            print("\n")
+            print(data)
 
         else:
             file_name = file_name + " unallocated.txt"
             file = open(file_name, 'w')
-            file.write("OFFICE UNALLOCATED\n")
-            file.write ("-------------------------------------\n")
-            file.write(', '.join(str(person.name) for person in self.office_unallocated))
-            file.write("\n")
-
-            file.write("\nLIVING SPACE UNALLOCATED\n")
-            file.write ("-------------------------------------\n")
-            file.write(', '.join(str(person.name) for person in self.living_space_unallocated))
-            file.write("\n")
+            file.write(data)
             print("Data has been saved to {0}".format(file_name))
 
 
@@ -219,7 +206,6 @@ class Amity():
             print ("-------------------------------------")
             print(', '.join(str(name) for name in room.occupants))
             print("\n")
-
         else:
             print("\n" + name.upper() + " not found")
 
