@@ -153,6 +153,7 @@ class Amity():
         Keyword arguments:
         file_name -- if specified, write to file
         """
+        data = ""
         for room in self.rooms:
             data +=room.name + "\n"
             data +="-------------------------------------\n"
@@ -331,8 +332,9 @@ class Amity():
         Keyword arguments:
         db_name -- if specified, load from specified database, else use default
         """
-        self.__init__()
+
         if (os.path.isfile(db_name+".db")):
+            self.__init__()
             self.db = Database(db_name)
             self.load_rooms()
             self.load_persons()
