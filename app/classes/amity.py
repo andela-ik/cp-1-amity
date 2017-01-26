@@ -71,6 +71,9 @@ class Amity():
         if room and room.check_availability():
             room.occupants.append(person.name.upper())
             room.number_of_occupants += 1
+            print('{name} has been allocated to {room}'.format(
+                                    name = person.name.upper(),
+                                    room = room.name.upper()))
 
 
 
@@ -84,7 +87,7 @@ class Amity():
         if room_type.upper() not in ['LSPACE','OFFICE']:
                 print("Invalid room type")
                 return
-                
+
         for room in self.rooms:
             if room.name == name.upper():
                 print(room.name + " ALREADY EXISTS")
@@ -103,7 +106,7 @@ class Amity():
 
         print(message)
         if room:
-            self.on_room_update(type(room))
+            self.on_room_update(room)
         return room
 
 
@@ -116,15 +119,11 @@ class Amity():
     def on_room_update(self, room):
         """ Track vacancies and auto allocate unallocated people"""
         allocated = []
-        if room == LivingSpace:
-            for i in range(0, len(self.living_space_unallocated)):
-                room = self.select_random_room(LivingSpace)
-                person = self.living_space_unallocated[i]
-                if room:
+        if type(room) == LivingSpace:
+            for i,person in enumerate(self.living_space_unallocated):
+                if room.check_availability():
                     self.allocate_room(person, room)
                     person.living_space_allocated = room
-                    print("A VACANT LSPACE WAS FOUND AND "+
-                                person.name+" ALLOCATED TO "+ room.name)
                     allocated.append(person)
                 else:
                     break
@@ -132,22 +131,21 @@ class Amity():
                 if person in self.living_space_unallocated:
                     self.living_space_unallocated.remove(person)
 
-        elif room == Office:
-            for i in range(0, len(self.office_unallocated)):
-                room = self.select_random_room(Office)
-                person = self.office_unallocated[i]
-                if room:
+
+
+        elif type(room) == Office:
+            for i,person in enumerate(self.office_unallocated):
+                if room.check_availability():
                     self.allocate_room(person, room)
                     person.office_allocated = room
-                    print("A VACANCT OFFICE WAS FOUND AND "+
-                                person.name+" ALLOCATED TO "+ room.name)
                     allocated.append(person)
+
                 else:
                     break
             for person in allocated:
                 if person in self.office_unallocated:
                     self.office_unallocated.remove(person)
-
+                    
 
     def print_allocations(self, file_name = False):
         """ Loop through rooms and print out persons allocated to each
