@@ -14,6 +14,14 @@ class AmityTest(unittest.TestCase):
         self.staff1 = self.amity.add_person("staff1","Staff")
         self.fellow1 = self.amity.add_person("fellow1","Fellow", "Y")
 
+    def tearDown(self):
+        """ Clear all variables created"""
+        del self.amity
+        del self.lspace1
+        del self.office1
+        del self.staff1
+        del self.fellow1
+
     def test_add_staff(self):
         """ TESTS FOR NEW STAFF"""
         self.assertIsInstance(self.amity.add_person("Ian KS","Staff", "N"), Staff)
