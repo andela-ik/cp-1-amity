@@ -60,13 +60,12 @@ class AmityInterface(cmd.Cmd):
 
     @docopt_cmd
     def do_add_person(self, arg):
-        """ Usage: add_person <first_name> <last_name> (fellow|staff) [<wants_accommodation>]"""
-        if arg['fellow']:
-            role = "FELLOW"
-        if arg['staff']:
-            role = "STAFF"
+        """ Usage: add_person <first_name> <last_name> <role> [<wants_accommodation>]"""
         name = " ".join([arg['<first_name>'], arg['<last_name>']])
+        role = arg['<role>']
         amity.add_person(name, role, arg['<wants_accommodation>'])
+
+
 
     @docopt_cmd
     def do_create_room(self, arg):
