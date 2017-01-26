@@ -309,12 +309,9 @@ class Amity():
 
     def select_random_room(self, room_type):
         """ Given a room type, selects a vacant room at random"""
-        available_rooms = []
         selected_room = None
-        for room in self.rooms:
-            if type(room) == room_type:
-                if(room.check_availability()):
-                    available_rooms.append(room)
+        available_rooms = [room for room in self.rooms \
+                        if(room.check_availability() and type(room) == room_type)]
         number_available = len(available_rooms)
         if number_available > 0:
             selected_room = random.sample(available_rooms, 1)[0]
